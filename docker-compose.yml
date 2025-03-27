@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  oracle:
+    image: gvenzl/oracle-free:latest
+    container_name: oracle-container
+    ports:
+      - "1521:1521"
+    environment:
+      - ORACLE_PASSWORD=1234
+      - ORACLE_DATABASE=xe
+      - ORACLE_USER=c##orcl
+    networks:
+      - blog-network
+
+  backend:
+    depends_on:
+      - oracle
+    build:
+      context: ./be-blog-app
+    container_name: be-blog-container
+    ports:
+      - "8080:8080"
+    networks:
+      - blog-network
+
+  frontend:
+    build:
+      context: ./fe-blog-app
+    container_name: fe-blog-container
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - blog-network
+
+networks:
+  blog-network:
+    driver: bridge
